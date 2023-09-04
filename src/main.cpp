@@ -1,6 +1,6 @@
 /* ##############-IMPORTANT-##########*/
 /* This code is only for PLATFORMIO!!!!, and will NOT work in ARDUINO IDE!!! 
-   Use MAIN.INO in SRC folder*/
+   Use MAIN.INO in SRC folder for ARDUINO IDE*/
 
 #include <Arduino.h>
 
@@ -15,7 +15,7 @@
    Explore more on: https://thestempedia.com/docs/dabble/phone-sensors-module/
 */
 
-/*  ##################################-PIN CONNECTIONS-#############################################
+/*  #################################-PIN CONNECTIONS-#############################################
                                     ESP32         L293D
                                      D13    ->     I1
                                      D12    ->     I2
