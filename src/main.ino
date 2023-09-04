@@ -1,5 +1,7 @@
 /* ##############-IMPORTANT-##########*/
-/* This code is only for ARDUINO IDE!!! */
+/* This code is only for ARDUINO IDE!!! 
+   Also install the required libraries
+   link: https://github.com/STEMpedia/DabbleESP32 */
 
 
 /*  ##################################-PIN CONNECTIONS-#############################################
