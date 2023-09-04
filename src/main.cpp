@@ -11,23 +11,31 @@
    Explore more on: https://thestempedia.com/docs/dabble/phone-sensors-module/
 */
 
+/*  ##################################-PIN CONNECTIONS-#############################################
+                                    ESP32         L293D
+                                     D13    ->     I1
+                                     D12    ->     I2
+                                     D14    ->     I3
+                                     D27    ->     I4
+*/
+
 #define CUSTOM_SETTINGS
 #define INCLUDE_SENSOR_MODULE
 
 #include <DabbleESP32.h>
 
 //MOTOR PIN CONNECTIONS
-int enableA = 34;
-int enableB = 35;
+#define enableA 34
+#define enableB 35
 
-int inputA1 = 13;
-int inputA2 = 12;
+#define inputA1 13
+#define inputA2 12
 
-int inputB1 = 14;
-int inputB2 = 27;
+#define inputB1 14
+#define inputB2 27
 
 //Limit of 
-float limit = 3.0;
+float const_limit = 3.0;
 
 /*This Function is used to print the Sensor values 
   recieved from Phone's Accelerometer*/ 
@@ -44,7 +52,7 @@ void print_Accelerometer_data() {
 }
 
 /*The function */
-bool dead_zone(float val, float limit) {
+bool dead_zone(float val, float limit = const_limit) {
   if (val >= -limit && val <= limit) {
     return 0;
   }
@@ -54,9 +62,44 @@ bool dead_zone(float val, float limit) {
   }
 }
 
+
+void bot_forward() {
+  digitalWrite(inputA1, 1);
+  digitalWrite(inputA2, 0);
+
+  digitalWrite(inputB1, 1);
+  digitalWrite(inputB2, 0);
+}
+
+void bot_backward() {
+  digitalWrite(inputA1, 0);
+  digitalWrite(inputA2, 1);
+
+  digitalWrite(inputB1, 0);
+  digitalWrite(inputB2, 1);
+}
+
+void bot_left() {
+  digitalWrite(inputA1, 1);
+  digitalWrite(inputA2, 0);
+
+  digitalWrite(inputB1, 0);
+  digitalWrite(inputB2, 1);
+}
+
+void bot_right() {
+  digitalWrite(inputA1, 0);
+  digitalWrite(inputA2, 1);
+
+  digitalWrite(inputB1, 1);
+  digitalWrite(inputB2, 0);
+}
+
+
+
 void setup() {
-  Serial.begin(115200);   // make sure your Serial Monitor is also set at this baud rate.
-  Dabble.begin("MYESP32"); //set bluetooth name of your device
+  Serial.begin(115200);    // Make sure your Serial Monitor is also set at this baud rate.
+  Dabble.begin("MYESP32"); // Set bluetooth name of your device!! (Make sure to set different name for each bot)
 
   pinMode(enableB, OUTPUT);
   pinMode(enableA, OUTPUT);
@@ -68,47 +111,41 @@ void setup() {
 }
 
 void loop() {
-  Dabble.processInput();      //this function is used to refresh data obtained from smartphone.Hence calling this function is mandatory in order to get data properly from your mobile.
+  Dabble.processInput();   //this function is used to refresh data obtained from smartphone.Hence calling this function is mandatory in order to get data properly from your mobile.
 
-  print_Accelerometer_data();
+  //print_Accelerometer_data();
 
-  float x = Sensor.getAccelerometerXaxis();
-  float y = Sensor.getAccelerometerYaxis();
+  //Stores the values recieved from the phone into their respective variable names
+  float X = Sensor.getAccelerometerXaxis();
+  float Y = Sensor.getAccelerometerYaxis();
 
+  /*#####################-MOTOR CONTROL SECTION-#########################*/
 
-
-  if (x>-3 && x<3 && y<3 && y>-3){
-    digitalWrite(inputA1,LOW);
-    digitalWrite(inputA2,LOW);
-    digitalWrite(inputB1,LOW);
-    digitalWrite(inputB2,LOW);
-    Serial.print("Motors off");
-  }
-
-
-  if (y>3 || y<-3){
-    if (y<-3){
-      digitalWrite(inputA1,HIGH);
-      digitalWrite(inputB1,HIGH);
-      Serial.println("fwd");
+  //LEFT-RIGHT SECTION
+  if (dead_zone(X)) {
+    if (X > const_limit) {
+      bot_right();
+      Serial.print("RIGHT");
     }
-    else if(y>3){
-      digitalWrite(inputA2,HIGH);
-      digitalWrite(inputB2,HIGH);
-      Serial.println("bkwd");
+
+    else if (X < -const_limit) {
+      bot_left();
+      Serial.print("LEFT");
     }
   }
 
-  if (x>3 || x<-3){
-    if (x<-3){                        //right
-      digitalWrite(inputA2,HIGH);
-      digitalWrite(inputB1,HIGH);
-      Serial.println("right");
+  //FORWARD-BACKWARD SECTION
+  else if (dead_zone(Y)) {
+    if (Y > const_limit) {
+      bot_forward();
+      Serial.print("FORWARD");
     }
-    else if(x>3){                     //left
-      digitalWrite(inputA1,HIGH);
-      digitalWrite(inputB2,HIGH);
-      Serial.println("left");
-    }
+
+    else if (Y < -const_limit) {
+      bot_backward();
+      Serial.print("BACKWARD");
+    }   
   }
+
+  /*################################-END-##################################*/
 }
