@@ -1,19 +1,6 @@
 /* ##############-IMPORTANT-##########*/
-/* This code is only for PLATFORMIO!!!!, and will NOT work in ARDUINO IDE!!! 
-   Use MAIN.INO in SRC folder*/
+/* This code is only for ARDUINO IDE!!! */
 
-#include <Arduino.h>
-
-/*
-   With this block of phone sensor module you can access gyroscope values of your smartphone.
-   Gyroscope gives you angular acceleration in x,y and z axis.
-
-   You can reduce the size of library compiled by enabling only those modules that you want
-   to   use. For this first define CUSTOM_SETTINGS followed by defining
-   INCLUDE_modulename.
-
-   Explore more on: https://thestempedia.com/docs/dabble/phone-sensors-module/
-*/
 
 /*  ##################################-PIN CONNECTIONS-#############################################
                                     ESP32         L293D
