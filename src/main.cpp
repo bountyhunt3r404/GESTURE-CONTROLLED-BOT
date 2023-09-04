@@ -10,42 +10,42 @@
 
    Explore more on: https://thestempedia.com/docs/dabble/phone-sensors-module/
 */
+
 #define CUSTOM_SETTINGS
 #define INCLUDE_SENSOR_MODULE
+
 #include <DabbleESP32.h>
 
-//Left Motor
-int IN1_A = 34;
-int IN2_A = 35;
-
-//Right Motor
-int IN1_B = 32;
-int IN2_B = 33;
-
+//MOTOR PIN CONNECTIONS
 int enableA = 34;
 int enableB = 35;
 
 int inputA1 = 13;
 int inputA2 = 12;
+
 int inputB1 = 14;
 int inputB2 = 27;
 
-void print_Accelerometer_data()
-{
-  Serial.print("X_axis: ");
+//Limit of 
+float limit = 3.0;
+
+/*This Function is used to print the Sensor values 
+  recieved from Phone's Accelerometer*/ 
+void print_Accelerometer_data() {
+  Serial.print("X-Axis: ");
   Serial.print(Sensor.getAccelerometerXaxis(), 4);
-  Serial.print('\t');
-  Serial.print("Y_axis: ");
+  Serial.print('|');
+  Serial.print("Y-Axis: ");
   Serial.print(Sensor.getAccelerometerYaxis(), 4);
-  Serial.print('\t');
-  Serial.print("Z_axis: ");
-  Serial.print(Sensor.getAccelerometerZaxis(), 4);
-  Serial.println();
+  Serial.print('|');
+  Serial.print("Z-Axis: ");
+  Serial.println(Sensor.getAccelerometerZaxis(), 4);
   delay(10);
 }
 
-bool dead_zone(float val) {
-  if (val >= -3.000 && val <=3.000) {
+/*The function */
+bool dead_zone(float val, float limit) {
+  if (val >= -limit && val <= limit) {
     return 0;
   }
 
@@ -56,12 +56,8 @@ bool dead_zone(float val) {
 
 void setup() {
   Serial.begin(115200);   // make sure your Serial Monitor is also set at this baud rate.
-  Dabble.begin("MyEsp32"); //set bluetooth name of your device
+  Dabble.begin("MYESP32"); //set bluetooth name of your device
 
-  pinMode(IN1_A, OUTPUT);
-  pinMode(IN1_B, OUTPUT);
-  pinMode(IN2_A, OUTPUT);
-  pinMode(IN2_B, OUTPUT);
   pinMode(enableB, OUTPUT);
   pinMode(enableA, OUTPUT);
   pinMode(inputA1, OUTPUT);
@@ -72,22 +68,13 @@ void setup() {
 }
 
 void loop() {
-  Dabble.processInput();             //this function is used to refresh data obtained from smartphone.Hence calling this function is mandatory in order to get data properly from your mobile.
-  //print_Gyroscope_data();
-  print_Accelerometer_data();
+  Dabble.processInput();      //this function is used to refresh data obtained from smartphone.Hence calling this function is mandatory in order to get data properly from your mobile.
 
-  // float x_val = Sensor.getAccelerometerXaxis();
-  // float y_val = Sensor.getAccelerometerYaxis();
-  // float z_val = Sensor.getAccelerometerZaxis();  
-  // Serial.print("X-Axis: ");
-  // Serial.print(dead_zone(Sensor.getAccelerometerXaxis()));
-  // Serial.print("|");
-  // Serial.print("Y-Axis: ");
-  // Serial.println(dead_zone(Sensor.getAccelerometerYaxis()));
+  print_Accelerometer_data();
 
   float x = Sensor.getAccelerometerXaxis();
   float y = Sensor.getAccelerometerYaxis();
-  //float z = Sensor.getAccelerometerZaxis();
+
 
 
   if (x>-3 && x<3 && y<3 && y>-3){
