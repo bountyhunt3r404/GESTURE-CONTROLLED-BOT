@@ -29,7 +29,7 @@ void print_Accelerometer_data()
 }
 
 bool dead_zone(float val) {
-  if (val >= -3 and val <=3) {
+  if (val >= -3.000 && val <=3.000) {
     return 0;
   }
 
