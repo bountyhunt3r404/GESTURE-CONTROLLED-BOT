@@ -115,7 +115,8 @@ void setup() {
 }
 
 void loop() {
-  Dabble.processInput();   //this function is used to refresh data obtained from smartphone.Hence calling this function is mandatory in order to get data properly from your mobile.
+  Dabble.processInput();   //This function is used to refresh data obtained from smartphone.
+                           //Hence calling this function is mandatory in order to get data properly from your mobile.
 
   //print_Accelerometer_data();
 
