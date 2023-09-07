@@ -21,6 +21,9 @@
                                      D12    ->     I2
                                      D14    ->     I3
                                      D27    ->     I4
+                                     D25    ->     EN1
+                                     D26    ->     EN2
+
 */
 
 #define CUSTOM_SETTINGS
@@ -29,8 +32,8 @@
 #include <DabbleESP32.h>
 
 //MOTOR PIN CONNECTIONS
-#define enableA 34
-#define enableB 35
+#define enableA 26
+#define enableB 25
 
 #define inputA1 13
 #define inputA2 12
