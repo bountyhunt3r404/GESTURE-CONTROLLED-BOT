@@ -41,21 +41,22 @@
 #define inputB1 14
 #define inputB2 27
 
-//Limit of 
+//Limit of accelerometer values to neglet
 float const_limit = 3.0;
+
+//Setting speed of motors
+int set_speed = 110;
 
 /*This Function is used to print the Sensor values 
   recieved from Phone's Accelerometer*/ 
-void print_Accelerometer_data() {
+void print_data() {
+  Serial.print("-|");
   Serial.print("X-Axis: ");
   Serial.print(Sensor.getAccelerometerXaxis(), 4);
   Serial.print('|');
   Serial.print("Y-Axis: ");
-  Serial.print(Sensor.getAccelerometerYaxis(), 4);
-  Serial.print('|');
-  Serial.print("Z-Axis: ");
-  Serial.println(Sensor.getAccelerometerZaxis(), 4);
-  delay(10);
+  Serial.println(Sensor.getAccelerometerYaxis(), 4);
+  delay(1);
 }
 
 /*The function */
@@ -69,38 +70,65 @@ bool dead_zone(float val, float limit = const_limit) {
   }
 }
 
+int smooth_motor_speed(float data) {
+  //Function smoothes out the rapid changing values from the phone
+  //float new_data = 
+  
+  //Checking for rapid changes and retruning the previous values
+  return 0;
+}
 
 void bot_forward() {
   digitalWrite(inputA1, 1);
   digitalWrite(inputA2, 0);
+  analogWrite(enableB, set_speed);
 
   digitalWrite(inputB1, 1);
   digitalWrite(inputB2, 0);
+  analogWrite(enableB, set_speed);
 }
 
 void bot_backward() {
   digitalWrite(inputA1, 0);
   digitalWrite(inputA2, 1);
+  analogWrite(enableB, set_speed);
 
   digitalWrite(inputB1, 0);
   digitalWrite(inputB2, 1);
+  analogWrite(enableB, set_speed);
+
 }
 
 void bot_left() {
   digitalWrite(inputA1, 1);
   digitalWrite(inputA2, 0);
+  analogWrite(enableB, set_speed);
 
   digitalWrite(inputB1, 0);
   digitalWrite(inputB2, 1);
+  analogWrite(enableB, set_speed);
 }
 
 void bot_right() {
   digitalWrite(inputA1, 0);
   digitalWrite(inputA2, 1);
+  analogWrite(enableB, set_speed);
 
   digitalWrite(inputB1, 1);
   digitalWrite(inputB2, 0);
+  analogWrite(enableB, set_speed);
 }
+
+void bot_stop() {
+  digitalWrite(inputA1, 0);
+  digitalWrite(inputA2, 0);
+  analogWrite(enableA, 0);
+
+  digitalWrite(inputB1, 0);
+  digitalWrite(inputB2, 0);
+  analogWrite(enableB, 0);
+}
+
 
 
 
@@ -121,7 +149,7 @@ void loop() {
   Dabble.processInput();   //This function is used to refresh data obtained from smartphone.
                            //Hence calling this function is mandatory in order to get data properly from your mobile.
 
-  //print_Accelerometer_data();
+  print_data();
 
   //Stores the values recieved from the phone into their respective variable names
   float X = Sensor.getAccelerometerXaxis();
@@ -129,14 +157,16 @@ void loop() {
 
   /*#####################-MOTOR CONTROL SECTION-#########################*/
 
+  
+
   //LEFT-RIGHT SECTION
   if (dead_zone(X)) {
-    if (X > const_limit) {
+    if (X < -const_limit) {
       bot_right();
       Serial.print("RIGHT");
     }
 
-    else if (X < -const_limit) {
+    else if (X > const_limit) {
       bot_left();
       Serial.print("LEFT");
     }
@@ -144,16 +174,22 @@ void loop() {
 
   //FORWARD-BACKWARD SECTION
   else if (dead_zone(Y)) {
-    if (Y > const_limit) {
+    if (Y < -const_limit) {
       bot_forward();
       Serial.print("FORWARD");
     }
 
-    else if (Y < -const_limit) {
+    else if (Y > const_limit) {
       bot_backward();
       Serial.print("BACKWARD");
     }   
   }
 
+  else {
+    bot_stop();
+    Serial.print("STOP");
+  }
+
   /*################################-END-##################################*/
+
 }
