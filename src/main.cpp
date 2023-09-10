@@ -32,6 +32,8 @@
                                     
                                     ESP32          SERVO
                                      D5     ->      PWM
+                                     Vin    ->      VCC
+                                     GND    ->      GND
 */
 
 #define CUSTOM_SETTINGS
@@ -83,7 +85,7 @@ bool dead_zone(float val, float limit = const_limit) {
 
 /*This function uses smooth library and takes int and float as INPUT
   and returns the AVGERAGE VALUE of the same data type.*/
-float smooth_data(float val) {
+float smooth_avg_filter(float val) {
   Smooth avg(10);
 
   if(val < 0) {
@@ -166,10 +168,10 @@ void print_data() {
   Serial.print(Sensor.getAccelerometerYaxis(), 4);
   Serial.print('|');
   Serial.print("AVG-X: ");
-  Serial.print(smooth_data(Sensor.getAccelerometerXaxis()));
+  Serial.print(smooth_avg_filter(Sensor.getAccelerometerXaxis()));
   Serial.print('|');
   Serial.print("AVG-Y: ");
-  Serial.print(smooth_data(Sensor.getAccelerometerYaxis()));
+  Serial.print(smooth_avg_filter(Sensor.getAccelerometerYaxis()));
   Serial.print("|");
   Serial.print("MAGNET: ");
   Serial.print(digitalRead(hall_detect));
@@ -203,13 +205,14 @@ void loop() {
   float X = Sensor.getAccelerometerXaxis();
   float Y = Sensor.getAccelerometerYaxis();
 
-  X = smooth_data(X);
-  Y = smooth_data(Y);
+  //Stores the avg value returned from the fucntion
+  X = smooth_avg_filter(X);
+  Y = smooth_avg_filter(Y);
 
   //SERVO CONTROL SECTION
   if(digitalRead(hall_detect) == 1 || digitalRead(hall_detect) == 0) {
-    myservo.write(90);
-    bot_stop();
+    myservo.write(90);    //rotates the servo to 90 degree positon when a magnet is detected                         
+    bot_stop();           //stops the bot when magnet is detected
     Serial.print("STOP");
   }
 
