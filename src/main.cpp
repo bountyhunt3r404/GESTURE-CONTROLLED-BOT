@@ -1,29 +1,37 @@
 /* ##############-IMPORTANT-##########*/
 /* This code is only for PLATFORMIO!!!!, and will NOT work in ARDUINO IDE!!! 
-   Use MAIN.INO in SRC folder for ARDUINO IDE*/
+   Use MAIN.INO in ARDUINO_CODE folder for ARDUINO IDE*/
 
 #include <Arduino.h>
 
 /*
-   With this block of phone sensor module you can access gyroscope values of your smartphone.
-   Gyroscope gives you angular acceleration in x,y and z axis.
-
-   You can reduce the size of library compiled by enabling only those modules that you want
-   to   use. For this first define CUSTOM_SETTINGS followed by defining
-   INCLUDE_modulename.
-
-   Explore more on: https://thestempedia.com/docs/dabble/phone-sensors-module/
+    INSTRUCTIONS:
+    !!!FOR FIRST TIME SETUP DOWNLOAD THE REQUIRED LIBRARIES FROM THE LIBARARY MANAGER:
+       LIBRARIES USED:
+       1. ESP32SERVO - link -> https://github.com/jkb-git/ESP32Servo
+       2. DabbleESP32 - link -> https://github.com/STEMpedia/DabbleESP32
+       3. SMOOTH - link -> https://github.com/ripred/Smooth
+    
+    !!!AS ESP32 IS A 3.3V DEVICE NECCASARY CAUTION SHOULD BE TAKEN WHILE CONNECTING SENSORS ANS OTHER DEVICES
 */
 
 /*  #################################-PIN CONNECTIONS-#############################################
-                                    ESP32         L293D
-                                     D13    ->     I1
-                                     D12    ->     I2
-                                     D14    ->     I3
-                                     D27    ->     I4
-                                     D25    ->     EN1
-                                     D26    ->     EN2
+                                    ESP32          L293D
+                                     D13    ->      I1
+                                     D12    ->      I2
+                                     D14    ->      I3
+                                     D27    ->      I4
+                                     D25    ->      EN1
+                                     D26    ->      EN2
 
+                                    ESP32       HALL SENSOR
+                                     3.3V   ->      +
+                                     GND    ->      -
+                                     D21    ->      D0
+                                     D32    ->      A0
+                                    
+                                    ESP32          SERVO
+                                     D5     ->      PWM
 */
 
 #define CUSTOM_SETTINGS
@@ -81,13 +89,11 @@ float smooth_data(float val) {
   if(val < 0) {
     val *= -1;
     avg.add(val);
-    
     return -avg();
   }
 
   else {
     avg.add(val);
-
     return avg();
   }
 }
@@ -201,79 +207,73 @@ void loop() {
   Y = smooth_data(Y);
 
   //SERVO CONTROL SECTION
-  if(digitalRead(hall_detect) == 1) {
+  if(digitalRead(hall_detect) == 1 || digitalRead(hall_detect) == 0) {
     myservo.write(90);
-    bot_stop();
-  }
-
-  else {
-    myservo.write(0);
-    
-  if (dead_zone(X)) {
-    if (X>0) {
-      set_speed = map(X*precision, 3*precision, 11*precision, min_motor_speed, max_motor_speed);
-    }
-
-    else {
-      set_speed = map(-X*precision, 3*precision, 11*precision, min_motor_speed, max_motor_speed);
-    }
-  }
-
-  else if (dead_zone(Y)) {
-    if (Y>0) {
-      set_speed = map(Y*precision, 3*precision, 11*precision, min_motor_speed, max_motor_speed);
-    }
-    
-    else {
-      set_speed = map(-Y*precision, 3*precision, 11*precision, min_motor_speed, max_motor_speed);
-    }
-  }
-
-  else {
-    set_speed = 0;
-  }
-
-  //LEFT-RIGHT SECTION
-  if (dead_zone(X)) {
-    if (X < -const_limit) {
-      bot_right();
-      Serial.print("RIGHT");
-    }
-
-    else if (X > const_limit) {
-      bot_left();
-      Serial.print("LEFT");
-    }
-  }
-
-  //FORWARD-BACKWARD SECTION
-  else if (dead_zone(Y)) {
-    if (Y < -const_limit) {
-      bot_forward();
-      Serial.print("FORWARD");
-    }
-
-    else if (Y > const_limit) {
-      bot_backward();
-      Serial.print("BACKWARD");
-    }   
-  }
-
-  else {
     bot_stop();
     Serial.print("STOP");
   }
 
+  else {
+    myservo.write(0); //Bring servo to the neutral position
+    
+    /*#####################-MOTOR CONTROL SECTION-#########################*/
+
+    //Speed Control of motors
+    if (dead_zone(X)) {
+      if (X>0) {
+        set_speed = map(X*precision, 3*precision, 11*precision, min_motor_speed, max_motor_speed);
+      }
+
+      else {
+        set_speed = map(-X*precision, 3*precision, 11*precision, min_motor_speed, max_motor_speed);
+      }
+    }
+
+    else if (dead_zone(Y)) {
+      if (Y>0) {
+        set_speed = map(Y*precision, 3*precision, 11*precision, min_motor_speed, max_motor_speed);
+      }
+      
+      else {
+        set_speed = map(-Y*precision, 3*precision, 11*precision, min_motor_speed, max_motor_speed);
+      }
+    }
+
+    else {
+      set_speed = 0;
+    }
+
+    //LEFT-RIGHT SECTION
+    if (dead_zone(X)) {
+      if (X < -const_limit) {
+        bot_right();
+        Serial.print("RIGHT");
+      }
+
+      else if (X > const_limit) {
+        bot_left();
+        Serial.print("LEFT");
+      }
+    }
+
+    //FORWARD-BACKWARD SECTION
+    else if (dead_zone(Y)) {
+      if (Y < -const_limit) {
+        bot_forward();
+        Serial.print("FORWARD");
+      }
+
+      else if (Y > const_limit) {
+        bot_backward();
+        Serial.print("BACKWARD");
+      }   
+    }
+
+    else {
+      bot_stop();
+      Serial.print("STOP");
+    }
+    /*################################-END-##################################*/
   }
-
-
-  /*#####################-MOTOR CONTROL SECTION-#########################*/
-
-  //Speed Control of motors
-
-
-  /*################################-END-##################################*/
-
-  //Prints the data such as X, Y of accelerometer and other necessary data.
-  print_data();
+  print_data();   //Prints the data such as X, Y of accelerometer and other necessary data.
 }
