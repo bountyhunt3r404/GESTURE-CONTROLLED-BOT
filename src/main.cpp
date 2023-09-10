@@ -45,7 +45,7 @@
 #define inputB2 27
 
 // HALL EFFECT SENSOR PINOUTS
-#define hall_detect 33
+#define hall_detect 21
 #define hall_analog 32
 
 //SERVO CONNECTIONS
@@ -165,6 +165,9 @@ void print_data() {
   Serial.print("AVG-Y: ");
   Serial.print(smooth_data(Sensor.getAccelerometerYaxis()));
   Serial.print("|");
+  Serial.print("MAGNET: ");
+  Serial.print(digitalRead(hall_detect));
+  Serial.print("|");
   Serial.print("SPEED: ");
   Serial.println(set_speed);
   delay(1);
@@ -182,7 +185,7 @@ void setup() {
   pinMode(inputA2, OUTPUT);
   pinMode(inputB1, OUTPUT);
   pinMode(inputB2, OUTPUT);
-  myservo.attach(15); 
+  myservo.attach(5); 
 
 }
 
@@ -205,13 +208,7 @@ void loop() {
 
   else {
     myservo.write(0);
-  }
-
-
-  /*#####################-MOTOR CONTROL SECTION-#########################*/
-
-  //Speed Control of motors
-
+    
   if (dead_zone(X)) {
     if (X>0) {
       set_speed = map(X*precision, 3*precision, 11*precision, min_motor_speed, max_motor_speed);
@@ -266,6 +263,14 @@ void loop() {
     bot_stop();
     Serial.print("STOP");
   }
+
+  }
+
+
+  /*#####################-MOTOR CONTROL SECTION-#########################*/
+
+  //Speed Control of motors
+
 
   /*################################-END-##################################*/
 
