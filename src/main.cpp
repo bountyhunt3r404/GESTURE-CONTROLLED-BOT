@@ -65,7 +65,7 @@ Servo myservo;
 float const_limit = 3.0;
 
 //Setting speed of motors
-int set_speed = 110;
+int set_speed = 0;
 const int min_motor_speed = 65;
 const int max_motor_speed = 255;
 const int precision = 100;
