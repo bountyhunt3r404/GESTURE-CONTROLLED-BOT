@@ -28,21 +28,28 @@
 
 #define CUSTOM_SETTINGS
 #define INCLUDE_SENSOR_MODULE
-
+#include <ESP32Servo.h>
 #include <DabbleESP32.h>
 #include <Smooth.h>
 
 
 
 //MOTOR PIN CONNECTIONS
-#define enableA 26
-#define enableB 25
+#define enableA 18
+#define enableB 19
 
 #define inputA1 13
 #define inputA2 12
 
 #define inputB1 14
 #define inputB2 27
+
+// HALL EFFECT SENSOR PINOUTS
+#define hall_detect 33
+#define hall_analog 32
+
+//SERVO CONNECTIONS
+Servo myservo;
 
 //Limit of accelerometer values to neglet
 float const_limit = 3.0;
@@ -90,7 +97,7 @@ float smooth_data(float val) {
 void bot_forward() {
   digitalWrite(inputA1, 1);
   digitalWrite(inputA2, 0);
-  analogWrite(enableB, set_speed);
+  analogWrite(enableA, set_speed);
 
   digitalWrite(inputB1, 1);
   digitalWrite(inputB2, 0);
@@ -100,7 +107,7 @@ void bot_forward() {
 void bot_backward() {
   digitalWrite(inputA1, 0);
   digitalWrite(inputA2, 1);
-  analogWrite(enableB, set_speed);
+  analogWrite(enableA, set_speed);
 
   digitalWrite(inputB1, 0);
   digitalWrite(inputB2, 1);
@@ -111,7 +118,7 @@ void bot_backward() {
 void bot_left() {
   digitalWrite(inputA1, 1);
   digitalWrite(inputA2, 0);
-  analogWrite(enableB, set_speed);
+  analogWrite(enableA, set_speed);
 
   digitalWrite(inputB1, 0);
   digitalWrite(inputB2, 1);
@@ -121,7 +128,7 @@ void bot_left() {
 void bot_right() {
   digitalWrite(inputA1, 0);
   digitalWrite(inputA2, 1);
-  analogWrite(enableB, set_speed);
+  analogWrite(enableA, set_speed);
 
   digitalWrite(inputB1, 1);
   digitalWrite(inputB2, 0);
@@ -175,7 +182,8 @@ void setup() {
   pinMode(inputA2, OUTPUT);
   pinMode(inputB1, OUTPUT);
   pinMode(inputB2, OUTPUT);
-  
+  myservo.attach(15); 
+
 }
 
 void loop() {
@@ -188,6 +196,17 @@ void loop() {
 
   X = smooth_data(X);
   Y = smooth_data(Y);
+
+  //SERVO CONTROL SECTION
+  if(digitalRead(hall_detect) == 1) {
+    myservo.write(90);
+    bot_stop();
+  }
+
+  else {
+    myservo.write(0);
+  }
+
 
   /*#####################-MOTOR CONTROL SECTION-#########################*/
 
