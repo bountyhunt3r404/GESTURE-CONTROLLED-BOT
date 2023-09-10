@@ -30,6 +30,9 @@
 #define INCLUDE_SENSOR_MODULE
 
 #include <DabbleESP32.h>
+#include <Smooth.h>
+
+
 
 //MOTOR PIN CONNECTIONS
 #define enableA 26
@@ -46,20 +49,13 @@ float const_limit = 3.0;
 
 //Setting speed of motors
 int set_speed = 110;
+const int min_motor_speed = 65;
+const int max_motor_speed = 255;
+const int precision = 100;
 
-/*This Function is used to print the Sensor values 
-  recieved from Phone's Accelerometer*/ 
-void print_data() {
-  Serial.print("-|");
-  Serial.print("X-Axis: ");
-  Serial.print(Sensor.getAccelerometerXaxis(), 4);
-  Serial.print('|');
-  Serial.print("Y-Axis: ");
-  Serial.println(Sensor.getAccelerometerYaxis(), 4);
-  delay(1);
-}
 
-/*The function */
+/*The function takes RAW value of ACCELEROMETER and returns 1 or 0
+  if the value crosses the const_limit*/
 bool dead_zone(float val, float limit = const_limit) {
   if (val >= -limit && val <= limit) {
     return 0;
@@ -70,13 +66,26 @@ bool dead_zone(float val, float limit = const_limit) {
   }
 }
 
-int smooth_motor_speed(float data) {
-  //Function smoothes out the rapid changing values from the phone
-  //float new_data = 
-  
-  //Checking for rapid changes and retruning the previous values
-  return 0;
+/*This function uses smooth library and takes int and float as INPUT
+  and returns the AVGERAGE VALUE of the same data type.*/
+float smooth_data(float val) {
+  Smooth avg(10);
+
+  if(val < 0) {
+    val *= -1;
+    avg.add(val);
+    
+    return -avg();
+  }
+
+  else {
+    avg.add(val);
+
+    return avg();
+  }
 }
+
+/*###################-BOT MOVEMENT FUNCTIONS-########################*/
 
 void bot_forward() {
   digitalWrite(inputA1, 1);
@@ -129,6 +138,30 @@ void bot_stop() {
   analogWrite(enableB, 0);
 }
 
+/*#############################-END-##################################*/
+
+/*This Function is used to print the Sensor values 
+  recieved from Phone's Accelerometer and other parameters
+  such as SMOOTHED VALLUES and SPEED  
+*/ 
+void print_data() {
+  Serial.print("-|");
+  Serial.print("X-Axis: ");
+  Serial.print(Sensor.getAccelerometerXaxis(), 4);
+  Serial.print('|');
+  Serial.print("Y-Axis: ");
+  Serial.print(Sensor.getAccelerometerYaxis(), 4);
+  Serial.print('|');
+  Serial.print("AVG-X: ");
+  Serial.print(smooth_data(Sensor.getAccelerometerXaxis()));
+  Serial.print('|');
+  Serial.print("AVG-Y: ");
+  Serial.print(smooth_data(Sensor.getAccelerometerYaxis()));
+  Serial.print("|");
+  Serial.print("SPEED: ");
+  Serial.println(set_speed);
+  delay(1);
+}
 
 
 
@@ -149,15 +182,40 @@ void loop() {
   Dabble.processInput();   //This function is used to refresh data obtained from smartphone.
                            //Hence calling this function is mandatory in order to get data properly from your mobile.
 
-  print_data();
-
   //Stores the values recieved from the phone into their respective variable names
   float X = Sensor.getAccelerometerXaxis();
   float Y = Sensor.getAccelerometerYaxis();
 
+  X = smooth_data(X);
+  Y = smooth_data(Y);
+
   /*#####################-MOTOR CONTROL SECTION-#########################*/
 
-  
+  //Speed Control of motors
+
+  if (dead_zone(X)) {
+    if (X>0) {
+      set_speed = map(X*precision, 3*precision, 11*precision, min_motor_speed, max_motor_speed);
+    }
+
+    else {
+      set_speed = map(-X*precision, 3*precision, 11*precision, min_motor_speed, max_motor_speed);
+    }
+  }
+
+  else if (dead_zone(Y)) {
+    if (Y>0) {
+      set_speed = map(Y*precision, 3*precision, 11*precision, min_motor_speed, max_motor_speed);
+    }
+    
+    else {
+      set_speed = map(-Y*precision, 3*precision, 11*precision, min_motor_speed, max_motor_speed);
+    }
+  }
+
+  else {
+    set_speed = 0;
+  }
 
   //LEFT-RIGHT SECTION
   if (dead_zone(X)) {
@@ -192,4 +250,6 @@ void loop() {
 
   /*################################-END-##################################*/
 
+  //Prints the data such as X, Y of accelerometer and other necessary data.
+  print_data();
 }
