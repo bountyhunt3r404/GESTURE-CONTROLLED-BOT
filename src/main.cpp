@@ -21,26 +21,26 @@
                                      D12    ->      I2
                                      D14    ->      I3
                                      D27    ->      I4
-                                     D25    ->      EN1
-                                     D26    ->      EN2
+                                     D18    ->      ENA/EN1
+                                     D19    ->      ENB/EN2
 
                                     ESP32       HALL SENSOR
-                                     3.3V   ->      +
-                                     GND    ->      -
+                                     3.3V   ->      + (Vcc)
+                                     GND    ->      - (GND)
                                      D21    ->      D0
                                      D32    ->      A0
                                     
                                     ESP32          SERVO
-                                     D5     ->      PWM
-                                     Vin    ->      VCC
-                                     GND    ->      GND
+                                     D5     ->      PWM (Orange)
+                                     Vin    ->      VCC (Red)
+                                     GND    ->      GND (Brown)
 */
 
 #define CUSTOM_SETTINGS
 #define INCLUDE_SENSOR_MODULE
 #include <ESP32Servo.h>
 #include <DabbleESP32.h>
-#include <Smooth.h>
+//#include <Smooth.h>
 
 
 
@@ -66,7 +66,7 @@ float const_limit = 3.0;
 
 //Setting speed of motors
 int set_speed = 0;
-const int min_motor_speed = 65;
+const int min_motor_speed = 0;
 const int max_motor_speed = 255;
 const int precision = 100;
 
@@ -83,64 +83,82 @@ bool dead_zone(float val, float limit = const_limit) {
   }
 }
 
-/*This function uses smooth library and takes int and float as INPUT
-  and returns the AVGERAGE VALUE of the same data type.*/
-float smooth_avg_filter(float val) {
-  Smooth avg(10);
+// /*This function uses smooth library and takes int and float as INPUT
+//   and returns the AVGERAGE VALUE of the same data type.*/
+// float smooth_avg_filter(float val) {
+//   Smooth avg(10);
 
-  if(val < 0) {
-    val *= -1;
-    avg.add(val);
-    return -avg();
-  }
+//   if(val < 0) {
+//     val *= -1;
+//     avg.add(val);
+//     return -avg();
+//   }
 
-  else {
-    avg.add(val);
-    return avg();
-  }
-}
+//   else {
+//     avg.add(val);
+//     return avg();
+//   }
+// }
 
 /*###################-BOT MOVEMENT FUNCTIONS-########################*/
 
-void bot_forward() {
-  digitalWrite(inputA1, 1);
-  digitalWrite(inputA2, 0);
-  analogWrite(enableA, set_speed);
+// void bot_forward() {
+//   digitalWrite(inputA1, 1);
+//   digitalWrite(inputA2, 0);
+//   analogWrite(enableA, set_speed);
 
-  digitalWrite(inputB1, 1);
-  digitalWrite(inputB2, 0);
-  analogWrite(enableB, set_speed);
-}
+//   digitalWrite(inputB1, 1);
+//   digitalWrite(inputB2, 0);
+//   analogWrite(enableB, set_speed);
+// }
 
-void bot_backward() {
-  digitalWrite(inputA1, 0);
-  digitalWrite(inputA2, 1);
-  analogWrite(enableA, set_speed);
+// void bot_backward() {
+//   digitalWrite(inputA1, 0);
+//   digitalWrite(inputA2, 1);
+//   analogWrite(enableA, set_speed);
 
-  digitalWrite(inputB1, 0);
-  digitalWrite(inputB2, 1);
-  analogWrite(enableB, set_speed);
+//   digitalWrite(inputB1, 0);
+//   digitalWrite(inputB2, 1);
+//   analogWrite(enableB, set_speed);
 
-}
+// }
 
-void bot_left() {
-  digitalWrite(inputA1, 1);
-  digitalWrite(inputA2, 0);
-  analogWrite(enableA, set_speed);
+// void bot_left() {
+//   digitalWrite(inputA1, 1);
+//   digitalWrite(inputA2, 0);
+//   analogWrite(enableA, set_speed);
 
-  digitalWrite(inputB1, 0);
-  digitalWrite(inputB2, 1);
-  analogWrite(enableB, set_speed);
-}
+//   digitalWrite(inputB1, 0);
+//   digitalWrite(inputB2, 1);
+//   analogWrite(enableB, set_speed);
+// }
 
-void bot_right() {
-  digitalWrite(inputA1, 0);
-  digitalWrite(inputA2, 1);
-  analogWrite(enableA, set_speed);
+// void bot_right() {
+//   digitalWrite(inputA1, 0);
+//   digitalWrite(inputA2, 1);
+//   analogWrite(enableA, set_speed);
 
-  digitalWrite(inputB1, 1);
-  digitalWrite(inputB2, 0);
-  analogWrite(enableB, set_speed);
+//   digitalWrite(inputB1, 1);
+//   digitalWrite(inputB2, 0);
+//   analogWrite(enableB, set_speed);
+// }
+
+void motor_direction_control(int data, int in1, int in2) {
+  if (data>0) {
+    digitalWrite(in1, 1);
+    digitalWrite(in2, 0);
+    
+  }
+
+  else if(data<0) {
+    digitalWrite(in1, 0);
+    digitalWrite(in2, 1);
+  }
+
+  else {
+    digitalWrite(in1, 0);
+    digitalWrite(in2, 0);
+  }
 }
 
 void bot_stop() {
@@ -168,10 +186,12 @@ void print_data() {
   Serial.print(Sensor.getAccelerometerYaxis(), 4);
   Serial.print('|');
   Serial.print("AVG-X: ");
-  Serial.print(smooth_avg_filter(Sensor.getAccelerometerXaxis()));
+  //Serial.print(smooth_avg_filter(Sensor.getAccelerometerXaxis()));
+  Serial.print(Sensor.getAccelerometerXaxis());
   Serial.print('|');
   Serial.print("AVG-Y: ");
-  Serial.print(smooth_avg_filter(Sensor.getAccelerometerYaxis()));
+  //Serial.print(smooth_avg_filter(Sensor.getAccelerometerYaxis()));
+  Serial.print(Sensor.getAccelerometerYaxis());
   Serial.print("|");
   Serial.print("MAGNET: ");
   Serial.print(digitalRead(hall_detect));
@@ -185,7 +205,7 @@ void print_data() {
 
 void setup() {
   Serial.begin(115200);    // Make sure your Serial Monitor is also set at this baud rate.
-  Dabble.begin("MYESP32"); // Set bluetooth name of your device!! (Make sure to set different name for each bot)
+  Dabble.begin("MewYESP32"); // Set bluetooth name of your device!! (Make sure to set different name for each bot)
 
   pinMode(enableB, OUTPUT);
   pinMode(enableA, OUTPUT);
@@ -195,6 +215,7 @@ void setup() {
   pinMode(inputB2, OUTPUT);
   myservo.attach(5); 
 
+  bot_stop();
 }
 
 void loop() {
@@ -205,12 +226,12 @@ void loop() {
   float X = Sensor.getAccelerometerXaxis();
   float Y = Sensor.getAccelerometerYaxis();
 
-  //Stores the avg value returned from the fucntion
-  X = smooth_avg_filter(X);
-  Y = smooth_avg_filter(Y);
+  // //Stores the avg value returned from the fucntion
+  // X = smooth_avg_filter(X);
+  // Y = smooth_avg_filter(Y);
 
   //SERVO CONTROL SECTION
-  if(digitalRead(hall_detect) == 1 || digitalRead(hall_detect) == 0) {
+  if(digitalRead(hall_detect) == 1) {
     myservo.write(90);    //rotates the servo to 90 degree positon when a magnet is detected                         
     bot_stop();           //stops the bot when magnet is detected
     Serial.print("STOP");
