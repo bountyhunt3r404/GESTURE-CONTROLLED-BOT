@@ -10,7 +10,7 @@
        2. DabbleESP32 - link -> https://github.com/STEMpedia/DabbleESP32
        3. SMOOTH - link -> https://github.com/ripred/Smooth
     
-    !!!AS ESP32 IS A 3.3V DEVICE NECCASARY CAUTION SHOULD BE TAKEN WHILE CONNECTING SENSORS ANS OTHER DEVICES
+    !!!AS ESP32 IS A 3.3V DEVICE NECCASARY CAUTION SHOULD BE TAKEN WHILE CONNECTING SENSORS AND OTHER DEVICES
 */
 
 /*  #################################-PIN CONNECTIONS-#############################################
@@ -19,19 +19,19 @@
                                      D12    ->      I2
                                      D14    ->      I3
                                      D27    ->      I4
-                                     D25    ->      EN1
-                                     D26    ->      EN2
+                                     D18    ->      ENA/EN1
+                                     D19    ->      ENB/EN2
 
                                     ESP32       HALL SENSOR
-                                     3.3V   ->      +
-                                     GND    ->      -
+                                     3.3V   ->      + (Vcc)
+                                     GND    ->      - (GND)
                                      D21    ->      D0
                                      D32    ->      A0
                                     
                                     ESP32          SERVO
-                                     D5     ->      PWM
-                                     Vin    ->      VCC
-                                     GND    ->      GND
+                                     D5     ->      PWM (Orange)
+                                     Vin    ->      VCC (Red)
+                                     GND    ->      GND (Brown)
 */
 
 #define CUSTOM_SETTINGS
@@ -63,7 +63,7 @@ Servo myservo;
 float const_limit = 3.0;
 
 //Setting speed of motors
-int set_speed = 110;
+int set_speed = 0;
 const int min_motor_speed = 65;
 const int max_motor_speed = 255;
 const int precision = 100;

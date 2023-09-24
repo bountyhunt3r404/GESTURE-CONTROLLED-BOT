@@ -12,7 +12,7 @@
        2. DabbleESP32 - link -> https://github.com/STEMpedia/DabbleESP32
        3. SMOOTH - link -> https://github.com/ripred/Smooth
     
-    !!!AS ESP32 IS A 3.3V DEVICE NECCASARY CAUTION SHOULD BE TAKEN WHILE CONNECTING SENSORS ANS OTHER DEVICES
+    !!!AS ESP32 IS A 3.3V DEVICE NECCASARY CAUTION SHOULD BE TAKEN WHILE CONNECTING SENSORS AND OTHER DEVICES
 */
 
 /*  #################################-PIN CONNECTIONS-#############################################
