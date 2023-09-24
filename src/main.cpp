@@ -71,105 +71,34 @@ const int max_motor_speed = 255;
 const int precision = 100;
 
 
-/*The function takes RAW value of ACCELEROMETER and returns 1 or 0
+class Motor {
+  bool pin1,pin2;
+  int speed;
+  public:
+  Motor(int pin1,int pin2, int enable){
+    pinMode(enable, OUTPUT);
+    pinMode(pin1, OUTPUT);
+    pinMode(pin2, OUTPUT);
+  }
+
+  /*The function takes RAW value of ACCELEROMETER and returns 1 or 0
   if the value crosses the const_limit*/
-bool dead_zone(float val, float limit = const_limit) {
-  if (val >= -limit && val <= limit) {
-    return 0;
+  bool dead_zone(float val, float limit = const_limit) {
+    if (val >= -limit && val <= limit) {
+      return 0;
+    }
+
+    else {
+      return 1;
+    }
   }
 
-  else {
-    return 1;
+  void yAxisMotion(int a1,int a2,int enable){
+      digitalWrite(a1, 1);
+      digitalWrite(a2, 0);
+      analogWrite(enable, set_speed);
   }
-}
-
-// /*This function uses smooth library and takes int and float as INPUT
-//   and returns the AVGERAGE VALUE of the same data type.*/
-// float smooth_avg_filter(float val) {
-//   Smooth avg(10);
-
-//   if(val < 0) {
-//     val *= -1;
-//     avg.add(val);
-//     return -avg();
-//   }
-
-//   else {
-//     avg.add(val);
-//     return avg();
-//   }
-// }
-
-/*###################-BOT MOVEMENT FUNCTIONS-########################*/
-
-// void bot_forward() {
-//   digitalWrite(inputA1, 1);
-//   digitalWrite(inputA2, 0);
-//   analogWrite(enableA, set_speed);
-
-//   digitalWrite(inputB1, 1);
-//   digitalWrite(inputB2, 0);
-//   analogWrite(enableB, set_speed);
-// }
-
-// void bot_backward() {
-//   digitalWrite(inputA1, 0);
-//   digitalWrite(inputA2, 1);
-//   analogWrite(enableA, set_speed);
-
-//   digitalWrite(inputB1, 0);
-//   digitalWrite(inputB2, 1);
-//   analogWrite(enableB, set_speed);
-
-// }
-
-// void bot_left() {
-//   digitalWrite(inputA1, 1);
-//   digitalWrite(inputA2, 0);
-//   analogWrite(enableA, set_speed);
-
-//   digitalWrite(inputB1, 0);
-//   digitalWrite(inputB2, 1);
-//   analogWrite(enableB, set_speed);
-// }
-
-// void bot_right() {
-//   digitalWrite(inputA1, 0);
-//   digitalWrite(inputA2, 1);
-//   analogWrite(enableA, set_speed);
-
-//   digitalWrite(inputB1, 1);
-//   digitalWrite(inputB2, 0);
-//   analogWrite(enableB, set_speed);
-// }
-
-void motor_direction_control(int data, int in1, int in2) {
-  if (data>0) {
-    digitalWrite(in1, 1);
-    digitalWrite(in2, 0);
-    
-  }
-
-  else if(data<0) {
-    digitalWrite(in1, 0);
-    digitalWrite(in2, 1);
-  }
-
-  else {
-    digitalWrite(in1, 0);
-    digitalWrite(in2, 0);
-  }
-}
-
-void bot_stop() {
-  digitalWrite(inputA1, 0);
-  digitalWrite(inputA2, 0);
-  analogWrite(enableA, 0);
-
-  digitalWrite(inputB1, 0);
-  digitalWrite(inputB2, 0);
-  analogWrite(enableB, 0);
-}
+};
 
 /*#############################-END-##################################*/
 
@@ -201,6 +130,8 @@ void print_data() {
   delay(1);
 }
 
+Motor L_motor(inputA1, inputA2, enableA);
+Motor R_motor(inputB1, inputB2, enableB);
 
 
 void setup() {
