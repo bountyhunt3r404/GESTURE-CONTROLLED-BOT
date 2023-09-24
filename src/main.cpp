@@ -21,19 +21,19 @@
                                      D12    ->      I2
                                      D14    ->      I3
                                      D27    ->      I4
-                                     D25    ->      EN1
-                                     D26    ->      EN2
+                                     D18    ->      ENA/EN1
+                                     D19    ->      ENB/EN2
 
                                     ESP32       HALL SENSOR
-                                     3.3V   ->      +
-                                     GND    ->      -
+                                     3.3V   ->      + (Vcc)
+                                     GND    ->      - (GND)
                                      D21    ->      D0
                                      D32    ->      A0
                                     
                                     ESP32          SERVO
-                                     D5     ->      PWM
-                                     Vin    ->      VCC
-                                     GND    ->      GND
+                                     D5     ->      PWM (Orange)
+                                     Vin    ->      VCC (Red)
+                                     GND    ->      GND (Brown)
 */
 
 #define CUSTOM_SETTINGS
